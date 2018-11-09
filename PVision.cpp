@@ -7,16 +7,16 @@
 * Includes
 ******************************************************************************/
 #include "PVision.h"
-#include <Wire.h>
+#include <myWire->h>
 
 /******************************************************************************
 * Private methods
 ******************************************************************************/
 void PVision::Write_2bytes(byte d1, byte d2)
 {
-    Wire.beginTransmission(IRslaveAddress);
-    Wire.write(d1); Wire.write(d2);
-    Wire.endTransmission();
+    myWire->beginTransmission(IRslaveAddress);
+    myWire->write(d1); myWire->write(d2);
+    myWire->endTransmission();
 }
 
 
@@ -29,18 +29,25 @@ PVision::PVision()
 	Blob2.number = 2;
 	Blob3.number = 3;
 	Blob4.number = 4;
+	blobcount=0;
+	IRslaveAddress=0;
+	IRsensorAddress=0;
+	s=0;
+	i=0;
+	myWire=NULL;
 }
 
 /******************************************************************************
 * Public methods
 ******************************************************************************/
 // init the PVision sensor
-void PVision::init ()
+void PVision::init (TwoWire * inWire)
 {
+	myWire=inWire;
     IRsensorAddress = 0xB0;
     IRslaveAddress = IRsensorAddress >> 1;   // This results in 0x21 as the address to pass to TWI
 
-    Wire.begin();
+    myWire->begin();
     // IR sensor initialize
     Write_2bytes(0x30,0x01); delay(10);
     Write_2bytes(0x30,0x08); delay(10);
@@ -54,11 +61,11 @@ void PVision::init ()
 byte PVision::read()
 {
     //IR sensor read
-    Wire.beginTransmission(IRslaveAddress);
-    Wire.write(0x36);
-    Wire.endTransmission();
+    myWire->beginTransmission(IRslaveAddress);
+    myWire->write(0x36);
+    myWire->endTransmission();
 
-    Wire.requestFrom(IRslaveAddress, 16);        // Request the 2 byte heading (MSB comes first)
+    myWire->requestFrom(IRslaveAddress, 16);        // Request the 2 byte heading (MSB comes first)
     for (i=0;i<16;i++)
     {
        data_buf[i]=0;
@@ -66,9 +73,9 @@ byte PVision::read()
 
     i=0;
 
-    while(Wire.available() && i < 16)
+    while(myWire->available() && i < 16)
     {
-        data_buf[i] = Wire.read();
+        data_buf[i] = myWire->read();
         i++;
     }
 

@@ -32,7 +32,7 @@ class PVision
 public:
   	PVision();
 
-	void init();   // returns true if the connection to the sensor established correctly
+	void init(TwoWire * myWire=&Wire);   // returns true if the connection to the sensor established correctly
 	byte read();   // updated the blobs, and returns the number of blobs detected
 
 	// Make these public
@@ -48,7 +48,7 @@ private:
 	byte data_buf[16];
 	int i;
 	int s;
-
+	TwoWire * myWire;
 	void Write_2bytes(byte d1, byte d2);
 	byte blobcount; // returns the number of blobs found - reads the sensor
 
